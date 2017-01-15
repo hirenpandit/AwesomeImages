@@ -1,4 +1,5 @@
 package com.jframe;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,14 +14,16 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONObject;
 
 public class DownloadBingImages {
-	private static final String PATH = "C:\\Users\\user\\Pictures\\AwesomeImages\\";
+	private String path;
 
-	public void downloadImages() {
+	public void downloadImages(String savePath) {
 
+		this.path = savePath;
 		String uri = "";
 		int i = 0;
 		do {
-			uri = "http://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US".replace("idx=0", "idx=" + i);
+			uri = "http://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US"
+					.replace("idx=0", "idx=" + i);
 
 			try {
 				DefaultHttpClient httpClient = new DefaultHttpClient();
@@ -30,28 +33,34 @@ public class DownloadBingImages {
 				HttpResponse response = httpClient.execute(getRequest);
 
 				if (response.getStatusLine().getStatusCode() != 200) {
-					throw new RuntimeException(
-							"Failed : HTTP error code : " + response.getStatusLine().getStatusCode());
+					throw new RuntimeException("Failed : HTTP error code : "
+							+ response.getStatusLine().getStatusCode());
 				}
 
-				BufferedReader br = new BufferedReader(new InputStreamReader((response.getEntity().getContent())));
+				BufferedReader br = new BufferedReader(new InputStreamReader(
+						(response.getEntity().getContent())));
 
 				String output;
 				System.out.println("Output from Server .... \n");
 				if ((output = br.readLine()) != null) {
 					JSONObject jsonObject = new JSONObject(output);
-					JSONObject imageObject = new JSONObject(jsonObject.getJSONArray("images").getString(0));
-					System.out.println("JSONObject: " + imageObject.getString("url"));
+					JSONObject imageObject = new JSONObject(
+							jsonObject.getJSONArray("images").getString(0));
+					System.out.println(
+							"JSONObject: " + imageObject.getString("url"));
 
 					String imageURL = imageObject.getString("url");
 					String imageName = imageURL.replace("/az/hprichbg/rb/", "");
-					File file = new File(PATH + imageName);
+					System.out.println("FILE PATH: " + (path + imageName));
+					File file = new File(path + imageName);
 					if (!file.exists()) {
 						String url = "http://www.bing.com" + imageURL;
 						downloadImage(url, file);
-						System.out.println("BingImage Saved: " + file.getName());
+						System.out
+								.println("BingImage Saved: " + file.getName());
 					} else {
-						System.out.println("File " + file.getName() + " already exist");
+						System.out.println(
+								"File " + file.getName() + " already exist");
 					}
 
 				}
@@ -67,7 +76,8 @@ public class DownloadBingImages {
 
 	}
 
-	private void downloadImage(String url, File file) throws ClientProtocolException, IOException {
+	private void downloadImage(String url, File file)
+			throws ClientProtocolException, IOException {
 		DefaultHttpClient httpClient = new DefaultHttpClient();
 		HttpGet getRequest = new HttpGet(url);
 		getRequest.addHeader("accept", "application/octet-stream");
@@ -75,10 +85,12 @@ public class DownloadBingImages {
 		HttpResponse response = httpClient.execute(getRequest);
 
 		if (response.getStatusLine().getStatusCode() != 200) {
-			throw new RuntimeException("Failed : HTTP error code : " + response.getStatusLine().getStatusCode());
+			throw new RuntimeException("Failed : HTTP error code : "
+					+ response.getStatusLine().getStatusCode());
 		}
 		try (FileOutputStream output = new FileOutputStream(file)) {
-			byte[] bytes = IOUtils.toByteArray(response.getEntity().getContent());
+			byte[] bytes = IOUtils
+					.toByteArray(response.getEntity().getContent());
 			IOUtils.write(bytes, output);
 		} catch (Exception e) {
 			e.printStackTrace();
