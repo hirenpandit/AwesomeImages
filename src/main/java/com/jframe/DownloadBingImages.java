@@ -12,14 +12,20 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DownloadBingImages {
-	private String path;
+
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(DownloadBingImages.class);
 
 	public void downloadImages(String savePath) {
 
-		this.path = savePath;
-		String uri = "";
+		String path = savePath;
+		String uri;
 		int i = 0;
 		do {
 			uri = "http://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US"
@@ -41,26 +47,23 @@ public class DownloadBingImages {
 						(response.getEntity().getContent())));
 
 				String output;
-				System.out.println("Output from Server .... \n");
+				LOGGER.info("Output from Server ....");
 				if ((output = br.readLine()) != null) {
 					JSONObject jsonObject = new JSONObject(output);
 					JSONObject imageObject = new JSONObject(
 							jsonObject.getJSONArray("images").getString(0));
-					System.out.println(
-							"JSONObject: " + imageObject.getString("url"));
+					LOGGER.info("JSONObject: {}", imageObject.getString("url"));
 
 					String imageURL = imageObject.getString("url");
 					String imageName = imageURL.replace("/az/hprichbg/rb/", "");
-					System.out.println("FILE PATH: " + (path + imageName));
+					LOGGER.info("FILE PATH: {}", path + imageName);
 					File file = new File(path + imageName);
 					if (!file.exists()) {
 						String url = "http://www.bing.com" + imageURL;
 						downloadImage(url, file);
-						System.out
-								.println("BingImage Saved: " + file.getName());
+						LOGGER.info("BingImage Saved: {}", file.getName());
 					} else {
-						System.out.println(
-								"File " + file.getName() + " already exist");
+						LOGGER.info("File {} already exist", file.getName());
 					}
 
 				}
@@ -68,7 +71,7 @@ public class DownloadBingImages {
 				httpClient.getConnectionManager().shutdown();
 
 			} catch (Exception ex) {
-				ex.printStackTrace();
+				LOGGER.error("ERROR downloading image", ex.getMessage());
 			}
 
 			i++;
@@ -93,7 +96,7 @@ public class DownloadBingImages {
 					.toByteArray(response.getEntity().getContent());
 			IOUtils.write(bytes, output);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage());
 		}
 
 	}
