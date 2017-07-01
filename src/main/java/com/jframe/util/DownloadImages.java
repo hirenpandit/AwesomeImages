@@ -81,7 +81,9 @@ public class DownloadImages {
 			btnBing.setEnabled(false);
 			String savePath = filePicker.getSelectedFilePath();
 			logger.info("Selected Path: {}", savePath);
+			long start = System.currentTimeMillis()/1000;
 			bingImages.downloadImages(StringUtils.join(savePath, File.separator));
+			logger.info("Time Taken: {} seconds", ((System.currentTimeMillis()/1000) - start));
 			btnBing.setEnabled(true);
 		});
 		return btnBing;
