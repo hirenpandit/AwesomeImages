@@ -28,6 +28,12 @@ public class DownloadImages {
 	private JFilePicker filePicker;
 
 	public void initView() {
+		/*try {
+			bingImages.testMultipart();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
 		JButton btnBing = createBingButton();
 		JButton btnSpotlight = createSpotlightButton();
 

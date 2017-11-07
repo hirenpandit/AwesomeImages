@@ -22,6 +22,7 @@ public class FileTypeFilter extends FileFilter {
 		return file.getName().toLowerCase().endsWith(extension);
 	}
 
+	@Override
 	public String getDescription() {
 		return description + String.format(" (*%s)", extension);
 	}
